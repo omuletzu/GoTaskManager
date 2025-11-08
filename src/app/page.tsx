@@ -1,6 +1,9 @@
-import { ApolloProvider } from "@apollo/client/react";
-import Image from "next/image";
+"use client"
+
+import TaskList from "./pages/TaskList";
 
 export default function Home() {
-  return <div></div>;
+  return (
+    <TaskList/>
+  );
 }

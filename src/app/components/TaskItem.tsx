@@ -1,10 +1,8 @@
-import { gql } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { Task } from "../models/Task";
 import { DELETE_TASK, UPDATE_TASK_STATUS } from "../utils/TaskOps";
 import { Status } from "../models/Status";
 import { UpdateTaskStatusInput } from "../models/UpdateTaskStatusInput";
-import { title } from "process";
 import { DeleteTaskInput } from "../models/DeleteTaskInput";
 
 interface TaskItemProps {

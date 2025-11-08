@@ -49,9 +49,9 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateTask       func(childComplexity int, input model.CreateTaskInput) int
-		DeleteTask       func(childComplexity int, id string) int
-		UpdateTask       func(childComplexity int, id string, input model.UpdateTaskInput) int
-		UpdateTaskStatus func(childComplexity int, id string, input model.UpdateTaskStatusInput) int
+		DeleteTask       func(childComplexity int, id model.DeleteTaskInput) int
+		UpdateTask       func(childComplexity int, input model.UpdateTaskInput) int
+		UpdateTaskStatus func(childComplexity int, input model.UpdateTaskStatusInput) int
 	}
 
 	Query struct {
@@ -68,9 +68,9 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.Task, error)
-	UpdateTask(ctx context.Context, id string, input model.UpdateTaskInput) (*model.Task, error)
-	UpdateTaskStatus(ctx context.Context, id string, input model.UpdateTaskStatusInput) (*model.Task, error)
-	DeleteTask(ctx context.Context, id string) (*model.Task, error)
+	UpdateTask(ctx context.Context, input model.UpdateTaskInput) (*model.Task, error)
+	UpdateTaskStatus(ctx context.Context, input model.UpdateTaskStatusInput) (*model.Task, error)
+	DeleteTask(ctx context.Context, id model.DeleteTaskInput) (*model.Task, error)
 }
 type QueryResolver interface {
 	Tasks(ctx context.Context, status *model.Status) ([]*model.Task, error)
@@ -116,7 +116,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteTask(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteTask(childComplexity, args["id"].(model.DeleteTaskInput)), true
 	case "Mutation.updateTask":
 		if e.complexity.Mutation.UpdateTask == nil {
 			break
@@ -127,7 +127,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTask(childComplexity, args["id"].(string), args["input"].(model.UpdateTaskInput)), true
+		return e.complexity.Mutation.UpdateTask(childComplexity, args["input"].(model.UpdateTaskInput)), true
 	case "Mutation.updateTaskStatus":
 		if e.complexity.Mutation.UpdateTaskStatus == nil {
 			break
@@ -138,7 +138,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTaskStatus(childComplexity, args["id"].(string), args["input"].(model.UpdateTaskStatusInput)), true
+		return e.complexity.Mutation.UpdateTaskStatus(childComplexity, args["input"].(model.UpdateTaskStatusInput)), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -186,6 +186,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateTaskInput,
+		ec.unmarshalInputDeleteTaskInput,
 		ec.unmarshalInputUpdateTaskInput,
 		ec.unmarshalInputUpdateTaskStatusInput,
 	)
@@ -318,7 +319,7 @@ func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNDeleteTaskInput2taskmanagerᚋgraphᚋmodelᚐDeleteTaskInput)
 	if err != nil {
 		return nil, err
 	}
@@ -329,32 +330,22 @@ func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateTaskStatus_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTaskStatusInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskStatusInput)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTaskStatusInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskStatusInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
 func (ec *executionContext) field_Mutation_updateTask_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTaskInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskInput)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTaskInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -491,7 +482,7 @@ func (ec *executionContext) _Mutation_updateTask(ctx context.Context, field grap
 		ec.fieldContext_Mutation_updateTask,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateTask(ctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateTaskInput))
+			return ec.resolvers.Mutation().UpdateTask(ctx, fc.Args["input"].(model.UpdateTaskInput))
 		},
 		nil,
 		ec.marshalNTask2ᚖtaskmanagerᚋgraphᚋmodelᚐTask,
@@ -542,7 +533,7 @@ func (ec *executionContext) _Mutation_updateTaskStatus(ctx context.Context, fiel
 		ec.fieldContext_Mutation_updateTaskStatus,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateTaskStatus(ctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateTaskStatusInput))
+			return ec.resolvers.Mutation().UpdateTaskStatus(ctx, fc.Args["input"].(model.UpdateTaskStatusInput))
 		},
 		nil,
 		ec.marshalNTask2ᚖtaskmanagerᚋgraphᚋmodelᚐTask,
@@ -593,7 +584,7 @@ func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field grap
 		ec.fieldContext_Mutation_deleteTask,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteTask(ctx, fc.Args["id"].(string))
+			return ec.resolvers.Mutation().DeleteTask(ctx, fc.Args["id"].(model.DeleteTaskInput))
 		},
 		nil,
 		ec.marshalNTask2ᚖtaskmanagerᚋgraphᚋmodelᚐTask,
@@ -2391,6 +2382,33 @@ func (ec *executionContext) unmarshalInputCreateTaskInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteTaskInput(ctx context.Context, obj any) (model.DeleteTaskInput, error) {
+	var it model.DeleteTaskInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateTaskInput(ctx context.Context, obj any) (model.UpdateTaskInput, error) {
 	var it model.UpdateTaskInput
 	asMap := map[string]any{}
@@ -2398,7 +2416,7 @@ func (ec *executionContext) unmarshalInputUpdateTaskInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ID", "title", "description", "status"}
+	fieldsInOrder := [...]string{"ID", "title", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2426,13 +2444,6 @@ func (ec *executionContext) unmarshalInputUpdateTaskInput(ctx context.Context, o
 				return it, err
 			}
 			it.Description = data
-		case "status":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOStatus2ᚖtaskmanagerᚋgraphᚋmodelᚐStatus(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Status = data
 		}
 	}
 
@@ -3027,6 +3038,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 
 func (ec *executionContext) unmarshalNCreateTaskInput2taskmanagerᚋgraphᚋmodelᚐCreateTaskInput(ctx context.Context, v any) (model.CreateTaskInput, error) {
 	res, err := ec.unmarshalInputCreateTaskInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteTaskInput2taskmanagerᚋgraphᚋmodelᚐDeleteTaskInput(ctx context.Context, v any) (model.DeleteTaskInput, error) {
+	res, err := ec.unmarshalInputDeleteTaskInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

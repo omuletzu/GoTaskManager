@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 const defaultPort = "8080"
@@ -51,9 +52,19 @@ func main() {
 		graph.NewExecutableSchema(graph.Config{Resolvers: resolver}),
 	)
 
-	http.Handle("/", playground.Handler("GraphQL", "/graphql"))
-	http.Handle("/graphql", srv)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	mux := http.NewServeMux()
+	mux.Handle("/", playground.Handler("GraphQL", "/graphql"))
+	mux.Handle("/graphql", srv)
+
+	handlerWithCors := c.Handler(mux)
 
 	log.Printf("Server running on http://localhost:%s/", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, handlerWithCors))
 }

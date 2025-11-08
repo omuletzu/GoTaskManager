@@ -28,12 +28,11 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.CreateTas
 }
 
 // UpdateTask is the resolver for the updateTask field.
-func (r *mutationResolver) UpdateTask(ctx context.Context, id string, input model.UpdateTaskInput) (*model.Task, error) {
+func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTaskInput) (*model.Task, error) {
 	task := &domain.Task{
 		ID:          *input.ID,
 		Title:       *input.Title,
 		Description: input.Description,
-		Status:      domain.Todo,
 	}
 
 	task, err := r.DBRepo.UpdateTask(task)
@@ -46,7 +45,7 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, id string, input mode
 }
 
 // UpdateTaskStatus is the resolver for the updateTaskStatus field.
-func (r *mutationResolver) UpdateTaskStatus(ctx context.Context, id string, input model.UpdateTaskStatusInput) (*model.Task, error) {
+func (r *mutationResolver) UpdateTaskStatus(ctx context.Context, input model.UpdateTaskStatusInput) (*model.Task, error) {
 	task := &domain.Task{
 		ID:     *input.ID,
 		Status: domain.Todo,
@@ -62,8 +61,8 @@ func (r *mutationResolver) UpdateTaskStatus(ctx context.Context, id string, inpu
 }
 
 // DeleteTask is the resolver for the deleteTask field.
-func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Task, error) {
-	task, err := r.DBRepo.DeleteTask(id)
+func (r *mutationResolver) DeleteTask(ctx context.Context, input model.DeleteTaskInput) (*model.Task, error) {
+	task, err := r.DBRepo.DeleteTask(*input.ID)
 
 	if err != nil {
 		return nil, err

@@ -116,7 +116,7 @@ func (r *PgTaskRepository) UpdateTask(task *domain.Task) (*domain.Task, error) {
 		return nil, err
 	}
 
-	query := "UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4 RETURNING id, title, description, status"
+	query := "UPDATE tasks SET title = $1, description = $2 WHERE id = $3 RETURNING id, title, description, status"
 
 	var sql_description sql.NullString
 
@@ -129,7 +129,7 @@ func (r *PgTaskRepository) UpdateTask(task *domain.Task) (*domain.Task, error) {
 		sql_description = sql.NullString{Valid: false}
 	}
 
-	row := r.DB.QueryRow(ctx, query, task.Title, sql_description, task.Status, sql_id)
+	row := r.DB.QueryRow(ctx, query, task.Title, sql_description, sql_id)
 
 	updated_row, err := ScanRow(row)
 

@@ -24,7 +24,6 @@ input UpdateTaskInput {
   ID: String
   title: String
   description: String
-  status: Status
 }
 
 input UpdateTaskStatusInput {
@@ -32,9 +31,13 @@ input UpdateTaskStatusInput {
   status: Status
 }
 
+input DeleteTaskInput {
+  ID: String
+}
+
 type Mutation {
   createTask(input: CreateTaskInput!): Task!
-  updateTask(id: ID!, input: UpdateTaskInput!): Task!
-  updateTaskStatus(id: ID!, input: UpdateTaskStatusInput!): Task!
-  deleteTask(id: ID!): Task!
+  updateTask(input: UpdateTaskInput!): Task!
+  updateTaskStatus(input: UpdateTaskStatusInput!): Task!
+  deleteTask(id: DeleteTaskInput!): Task!
 }

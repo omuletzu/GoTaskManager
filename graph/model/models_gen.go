@@ -14,6 +14,10 @@ type CreateTaskInput struct {
 	Description *string `json:"description,omitempty"`
 }
 
+type DeleteTaskInput struct {
+	ID *string `json:"ID,omitempty"`
+}
+
 type Mutation struct {
 }
 
@@ -31,7 +35,6 @@ type UpdateTaskInput struct {
 	ID          *string `json:"ID,omitempty"`
 	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
-	Status      *Status `json:"status,omitempty"`
 }
 
 type UpdateTaskStatusInput struct {

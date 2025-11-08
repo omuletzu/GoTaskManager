@@ -34,6 +34,11 @@ type UpdateTaskInput struct {
 	Status      *Status `json:"status,omitempty"`
 }
 
+type UpdateTaskStatusInput struct {
+	ID     *string `json:"ID,omitempty"`
+	Status *Status `json:"status,omitempty"`
+}
+
 type Status string
 
 const (

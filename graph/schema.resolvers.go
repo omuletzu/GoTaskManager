@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"taskmanager/domain"
 	"taskmanager/graph/model"
 )
@@ -37,7 +36,23 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, id string, input mode
 		Status:      domain.Todo,
 	}
 
-	task, err := r.DBRepo.CreateTask(task)
+	task, err := r.DBRepo.UpdateTask(task)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ToGraphQL(task), nil
+}
+
+// UpdateTaskStatus is the resolver for the updateTaskStatus field.
+func (r *mutationResolver) UpdateTaskStatus(ctx context.Context, id string, input model.UpdateTaskStatusInput) (*model.Task, error) {
+	task := &domain.Task{
+		ID:     *input.ID,
+		Status: domain.Todo,
+	}
+
+	task, err := r.DBRepo.UpdateTaskStatus(task)
 
 	if err != nil {
 		return nil, err
@@ -48,12 +63,18 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, id string, input mode
 
 // DeleteTask is the resolver for the deleteTask field.
 func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
+	task, err := r.DBRepo.DeleteTask(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ToGraphQL(task), nil
 }
 
 // Tasks is the resolver for the tasks field.
-func (r *queryResolver) GetTasks(ctx context.Context, status *model.Status) ([]*model.Task, error) {
-	tasks, err := r.DBRepo.GetTasks((*domain.Status)(status))
+func (r *queryResolver) Tasks(ctx context.Context, status *model.Status) ([]*model.Task, error) {
+	tasks, err := r.DBRepo.Tasks((*domain.Status)(status))
 
 	if err != nil {
 		return nil, err

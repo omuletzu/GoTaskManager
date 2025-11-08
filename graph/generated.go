@@ -48,13 +48,14 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateTask func(childComplexity int, input model.CreateTaskInput) int
-		DeleteTask func(childComplexity int, id string) int
-		UpdateTask func(childComplexity int, id string, input model.UpdateTaskInput) int
+		CreateTask       func(childComplexity int, input model.CreateTaskInput) int
+		DeleteTask       func(childComplexity int, id string) int
+		UpdateTask       func(childComplexity int, id string, input model.UpdateTaskInput) int
+		UpdateTaskStatus func(childComplexity int, id string, input model.UpdateTaskStatusInput) int
 	}
 
 	Query struct {
-		GetTasks func(childComplexity int, status *model.Status) int
+		Tasks func(childComplexity int, status *model.Status) int
 	}
 
 	Task struct {
@@ -68,10 +69,11 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.Task, error)
 	UpdateTask(ctx context.Context, id string, input model.UpdateTaskInput) (*model.Task, error)
+	UpdateTaskStatus(ctx context.Context, id string, input model.UpdateTaskStatusInput) (*model.Task, error)
 	DeleteTask(ctx context.Context, id string) (*model.Task, error)
 }
 type QueryResolver interface {
-	GetTasks(ctx context.Context, status *model.Status) ([]*model.Task, error)
+	Tasks(ctx context.Context, status *model.Status) ([]*model.Task, error)
 }
 
 type executableSchema struct {
@@ -126,18 +128,29 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.UpdateTask(childComplexity, args["id"].(string), args["input"].(model.UpdateTaskInput)), true
-
-	case "Query.getTasks":
-		if e.complexity.Query.GetTasks == nil {
+	case "Mutation.updateTaskStatus":
+		if e.complexity.Mutation.UpdateTaskStatus == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getTasks_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_updateTaskStatus_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetTasks(childComplexity, args["status"].(*model.Status)), true
+		return e.complexity.Mutation.UpdateTaskStatus(childComplexity, args["id"].(string), args["input"].(model.UpdateTaskStatusInput)), true
+
+	case "Query.tasks":
+		if e.complexity.Query.Tasks == nil {
+			break
+		}
+
+		args, err := ec.field_Query_tasks_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Tasks(childComplexity, args["status"].(*model.Status)), true
 
 	case "Task.description":
 		if e.complexity.Task.Description == nil {
@@ -174,6 +187,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateTaskInput,
 		ec.unmarshalInputUpdateTaskInput,
+		ec.unmarshalInputUpdateTaskStatusInput,
 	)
 	first := true
 
@@ -312,6 +326,22 @@ func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateTaskStatus_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTaskStatusInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskStatusInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateTask_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -339,7 +369,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getTasks_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "status", ec.unmarshalOStatus2ᚖtaskmanagerᚋgraphᚋmodelᚐStatus)
@@ -504,6 +534,57 @@ func (ec *executionContext) fieldContext_Mutation_updateTask(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_updateTaskStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updateTaskStatus,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UpdateTaskStatus(ctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateTaskStatusInput))
+		},
+		nil,
+		ec.marshalNTask2ᚖtaskmanagerᚋgraphᚋmodelᚐTask,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTaskStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Task_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "status":
+				return ec.fieldContext_Task_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTaskStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -555,15 +636,15 @@ func (ec *executionContext) fieldContext_Mutation_deleteTask(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getTasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Query_getTasks,
+		ec.fieldContext_Query_tasks,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().GetTasks(ctx, fc.Args["status"].(*model.Status))
+			return ec.resolvers.Query().Tasks(ctx, fc.Args["status"].(*model.Status))
 		},
 		nil,
 		ec.marshalNTask2ᚕᚖtaskmanagerᚋgraphᚋmodelᚐTaskᚄ,
@@ -572,7 +653,7 @@ func (ec *executionContext) _Query_getTasks(ctx context.Context, field graphql.C
 	)
 }
 
-func (ec *executionContext) fieldContext_Query_getTasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -599,7 +680,7 @@ func (ec *executionContext) fieldContext_Query_getTasks(ctx context.Context, fie
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getTasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_tasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2358,6 +2439,40 @@ func (ec *executionContext) unmarshalInputUpdateTaskInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateTaskStatusInput(ctx context.Context, obj any) (model.UpdateTaskStatusInput, error) {
+	var it model.UpdateTaskStatusInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ID", "status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOStatus2ᚖtaskmanagerᚋgraphᚋmodelᚐStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2395,6 +2510,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateTask":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateTask(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateTaskStatus":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTaskStatus(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -2448,7 +2570,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "getTasks":
+		case "tasks":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -2457,7 +2579,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getTasks(ctx, field)
+				res = ec._Query_tasks(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3010,6 +3132,11 @@ func (ec *executionContext) marshalNTask2ᚖtaskmanagerᚋgraphᚋmodelᚐTask(c
 
 func (ec *executionContext) unmarshalNUpdateTaskInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskInput(ctx context.Context, v any) (model.UpdateTaskInput, error) {
 	res, err := ec.unmarshalInputUpdateTaskInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateTaskStatusInput2taskmanagerᚋgraphᚋmodelᚐUpdateTaskStatusInput(ctx context.Context, v any) (model.UpdateTaskStatusInput, error) {
+	res, err := ec.unmarshalInputUpdateTaskStatusInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

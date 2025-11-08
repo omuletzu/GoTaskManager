@@ -12,7 +12,7 @@ type Task {
 }
 
 type Query {
-  getTasks(status: Status): [Task!]!
+  tasks(status: Status): [Task!]!
 }
 
 input CreateTaskInput {
@@ -27,8 +27,14 @@ input UpdateTaskInput {
   status: Status
 }
 
+input UpdateTaskStatusInput {
+  ID: String,
+  status: Status
+}
+
 type Mutation {
   createTask(input: CreateTaskInput!): Task!
   updateTask(id: ID!, input: UpdateTaskInput!): Task!
+  updateTaskStatus(id: ID!, input: UpdateTaskStatusInput!): Task!
   deleteTask(id: ID!): Task!
 }

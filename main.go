@@ -4,40 +4,56 @@ import (
 	"log"
 	"net/http"
 	"os"
+	pg "taskmanager/db"
 	"taskmanager/graph"
+	pg_infrastruct "taskmanager/infrastruct/pg"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/lru"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/joho/godotenv"
 )
 
 const defaultPort = "8080"
 
+func initDB() *pg_infrastruct.PgTaskRepository {
+	pgUrl := os.Getenv("PG_URL")
+
+	pgDb, err := pg.GetPgDb(pgUrl)
+
+	if err != nil {
+		log.Fatalf("Failed to connect to PG DB: %v", err)
+	}
+
+	return &pg_infrastruct.PgTaskRepository{DB: pgDb}
+}
+
+func initResolver() *graph.Resolver {
+	repo := initDB()
+
+	return &graph.Resolver{DBRepo: repo}
+}
+
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Failed to load env")
+		return
+	}
+
+	resolver := initResolver()
+
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = defaultPort
 	}
 
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(
+		graph.NewExecutableSchema(graph.Config{Resolvers: resolver}),
+	)
 
-	srv.AddTransport(transport.Options{})
-	srv.AddTransport(transport.GET{})
-	srv.AddTransport(transport.POST{})
+	http.Handle("/", playground.Handler("GraphQL", "/graphql"))
+	http.Handle("/graphql", srv)
 
-	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-
-	srv.Use(extension.Introspection{})
-	srv.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New[string](100),
-	})
-
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Printf("Server running on http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

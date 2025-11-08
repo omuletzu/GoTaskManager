@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"strconv"
 	"taskmanager/domain"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type PgTaskRepository struct {
-	DB *sql.DB
+	DB *pgx.Conn
 }
 
 type Scanner interface {
@@ -39,7 +41,7 @@ func ScanRow(row Scanner) (*domain.Task, error) {
 	}, nil
 }
 
-func (r *PgTaskRepository) GetTask(status *domain.Status) ([]*domain.Task, error) {
+func (r *PgTaskRepository) Tasks(status *domain.Status) ([]*domain.Task, error) {
 	ctx := context.Background()
 
 	query := "SELECT id, title, description, status FROM query"
@@ -51,7 +53,7 @@ func (r *PgTaskRepository) GetTask(status *domain.Status) ([]*domain.Task, error
 		sql_args = append(sql_args, status)
 	}
 
-	rows, err := r.DB.QueryContext(ctx, query, sql_args...)
+	rows, err := r.DB.Query(ctx, query, sql_args...)
 
 	if err != nil {
 		return nil, err
@@ -94,7 +96,7 @@ func (r *PgTaskRepository) CreateTask(task *domain.Task) (*domain.Task, error) {
 		sql_description = sql.NullString{Valid: false}
 	}
 
-	row := r.DB.QueryRowContext(ctx, query, task.Title, sql_description, task.Status)
+	row := r.DB.QueryRow(ctx, query, task.Title, sql_description, task.Status)
 
 	inserted_row, err := ScanRow(row)
 
@@ -127,7 +129,29 @@ func (r *PgTaskRepository) UpdateTask(task *domain.Task) (*domain.Task, error) {
 		sql_description = sql.NullString{Valid: false}
 	}
 
-	row := r.DB.QueryRowContext(ctx, query, task.Title, sql_description, task.Status, sql_id)
+	row := r.DB.QueryRow(ctx, query, task.Title, sql_description, task.Status, sql_id)
+
+	updated_row, err := ScanRow(row)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return updated_row, nil
+}
+
+func (r *PgTaskRepository) UpdateTaskStatus(task *domain.Task) (*domain.Task, error) {
+	ctx := context.Background()
+
+	sql_id, err := strconv.Atoi(task.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query := "UPDATE tasks SET status = $1 WHERE id = $2 RETURNING id, title, description, status"
+
+	row := r.DB.QueryRow(ctx, query, task.Status, sql_id)
 
 	updated_row, err := ScanRow(row)
 
@@ -149,7 +173,7 @@ func (r *PgTaskRepository) DeleteTask(id string) (*domain.Task, error) {
 
 	query := "DELETE FROM tasks WHERE id = $1 RETURNING id, title, description, status"
 
-	row := r.DB.QueryRowContext(ctx, query, sql_id)
+	row := r.DB.QueryRow(ctx, query, sql_id)
 
 	deleted_row, err := ScanRow(row)
 

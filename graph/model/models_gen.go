@@ -2,25 +2,91 @@
 
 package model
 
-type Mutation struct {
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type CreateTaskInput struct {
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type Mutation struct {
 }
 
 type Query struct {
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type Task struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+	Status      Status  `json:"status"`
 }
 
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+type UpdateTaskInput struct {
+	ID          *string `json:"ID,omitempty"`
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Status      *Status `json:"status,omitempty"`
+}
+
+type Status string
+
+const (
+	StatusTodo       Status = "TODO"
+	StatusInProgress Status = "IN_PROGRESS"
+	StatusDone       Status = "DONE"
+)
+
+var AllStatus = []Status{
+	StatusTodo,
+	StatusInProgress,
+	StatusDone,
+}
+
+func (e Status) IsValid() bool {
+	switch e {
+	case StatusTodo, StatusInProgress, StatusDone:
+		return true
+	}
+	return false
+}
+
+func (e Status) String() string {
+	return string(e)
+}
+
+func (e *Status) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Status(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Status", str)
+	}
+	return nil
+}
+
+func (e Status) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Status) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Status) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

@@ -7,17 +7,59 @@ package graph
 import (
 	"context"
 	"fmt"
+	"taskmanager/domain"
 	"taskmanager/graph/model"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+// CreateTask is the resolver for the createTask field.
+func (r *mutationResolver) CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.Task, error) {
+	task := &domain.Task{
+		Title:       input.Title,
+		Description: input.Description,
+		Status:      domain.Todo,
+	}
+
+	task, err := r.DBRepo.CreateTask(task)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ToGraphQL(task), nil
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+// UpdateTask is the resolver for the updateTask field.
+func (r *mutationResolver) UpdateTask(ctx context.Context, id string, input model.UpdateTaskInput) (*model.Task, error) {
+	task := &domain.Task{
+		ID:          *input.ID,
+		Title:       *input.Title,
+		Description: input.Description,
+		Status:      domain.Todo,
+	}
+
+	task, err := r.DBRepo.CreateTask(task)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ToGraphQL(task), nil
+}
+
+// DeleteTask is the resolver for the deleteTask field.
+func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Task, error) {
+	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
+}
+
+// Tasks is the resolver for the tasks field.
+func (r *queryResolver) GetTasks(ctx context.Context, status *model.Status) ([]*model.Task, error) {
+	tasks, err := r.DBRepo.GetTasks((*domain.Status)(status))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ToArrGraphQL(tasks), nil
 }
 
 // Mutation returns MutationResolver implementation.

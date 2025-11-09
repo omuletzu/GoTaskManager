@@ -97,11 +97,11 @@ PG_URL=
 To deploy the application using Docker, make sure all images are built and then start the containers with Docker Compose:
 
 ```
-docker build -t task-be ./backend
+docker build -t task-be ./GQL
 ```
 
 ```
-docker build -t task-fe ./frontend
+docker build -t task-fe ./FE
 ```
 
 ```

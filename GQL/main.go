@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	pg "taskmanager/db"
 	"taskmanager/graph"
+	"taskmanager/infrastruct/pg"
 	pg_infrastruct "taskmanager/infrastruct/pg"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -35,9 +35,11 @@ func initResolver() *graph.Resolver {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Failed to load env")
-		return
+	if _, err := os.Stat(".env"); err == nil {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("Failed to load env")
+			return
+		}
 	}
 
 	resolver := initResolver()

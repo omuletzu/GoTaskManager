@@ -60,6 +60,7 @@ https://github.com/user-attachments/assets/01c3bac5-a52b-4057-bd44-b728d8204d51
 - Form to create a new task (default TODO status)
 - Ability to **edit status** or **delete** a task
 - Communication with backend via **GraphQL (Apollo Client)**
+- Apollo Client was used for **query and mutation caching**, improving performance and providing a more responsive UI.
 
 ### DevOps
 

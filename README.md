@@ -7,12 +7,18 @@
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Apollo Client](https://img.shields.io/badge/Apollo%20Client-Frontend-311C87?logo=apollographql)](https://www.apollographql.com/)
 
+## Overview
+
 A project that allows users to *view, add, edit and delete* tasks with status filtering.
 
 - **Backend:** Go + GraphQL + PostgreSQL  
 - **Frontend:** Next.js + Apollo Client  
 - **Containerization:** Docker & Docker Compose  
 - **Architecture:** Hexagonal (Ports & Adapters) pattern
+
+## Demo
+
+https://github.com/user-attachments/assets/01c3bac5-a52b-4057-bd44-b728d8204d51
 
 ## Features
 

@@ -1,0 +1,49 @@
+services:
+  frontend:
+    image: task-fe
+    container_name: frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_GQL_URL: ${NEXT_PUBLIC_GQL_URL}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    networks:
+      - net
+
+  backend:
+    image: task-be
+    container_name: backend
+    restart: always
+    environment:
+      PG_URL: ${PG_URL}
+      PORT: ${BE_PORT}
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    networks:
+      - net
+
+  db:
+    image: postgres
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: task-manager
+    ports:
+      - "5433:5432"
+    volumes:
+      - task-db:/var/lib/postgresql
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - net
+
+volumes:
+  task-db:
+
+networks:
+  net:

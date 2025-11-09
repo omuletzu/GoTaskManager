@@ -7,6 +7,23 @@
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Apollo Client](https://img.shields.io/badge/Apollo%20Client-Frontend-311C87?logo=apollographql)](https://www.apollographql.com/)
 
+## Table of Contents
+
+- [Overview](#overview)  
+- [Demo](#demo)  
+- [Features](#features)  
+  - [Backend (Go, GraphQL, PostgreSQL)](#backend-go-graphql-postgresql)  
+    - [Entities](#entities)  
+    - [Queries](#queries)  
+    - [Mutations](#mutations)  
+    - [Database](#database)  
+    - [Architecture](#architecture)  
+  - [Frontend (Next.js, Apollo Client)](#frontend-nextjs-apollo-client)  
+  - [DevOps](#devops)  
+- [Backend Architecture](#backend-architecture)  
+- [Environmental Configuration](#environmental-configuration)  
+- [Deployment](#deployment)
+
 ## Overview
 
 A project that allows users to *view, add, edit and delete* tasks with status filtering.

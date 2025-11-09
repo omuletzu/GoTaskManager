@@ -48,7 +48,7 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTas
 func (r *mutationResolver) UpdateTaskStatus(ctx context.Context, input model.UpdateTaskStatusInput) (*model.Task, error) {
 	task := &domain.Task{
 		ID:     *input.ID,
-		Status: domain.Todo,
+		Status: domain.Status(*input.Status),
 	}
 
 	task, err := r.DBRepo.UpdateTaskStatus(task)

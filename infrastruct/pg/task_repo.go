@@ -44,7 +44,7 @@ func ScanRow(row Scanner) (*domain.Task, error) {
 func (r *PgTaskRepository) Tasks(status *domain.Status) ([]*domain.Task, error) {
 	ctx := context.Background()
 
-	query := "SELECT id, title, description, status FROM query"
+	query := "SELECT id, title, description, status FROM tasks"
 
 	var sql_args []interface{}
 

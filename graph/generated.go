@@ -49,7 +49,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateTask       func(childComplexity int, input model.CreateTaskInput) int
-		DeleteTask       func(childComplexity int, id model.DeleteTaskInput) int
+		DeleteTask       func(childComplexity int, input model.DeleteTaskInput) int
 		UpdateTask       func(childComplexity int, input model.UpdateTaskInput) int
 		UpdateTaskStatus func(childComplexity int, input model.UpdateTaskStatusInput) int
 	}
@@ -70,7 +70,7 @@ type MutationResolver interface {
 	CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.Task, error)
 	UpdateTask(ctx context.Context, input model.UpdateTaskInput) (*model.Task, error)
 	UpdateTaskStatus(ctx context.Context, input model.UpdateTaskStatusInput) (*model.Task, error)
-	DeleteTask(ctx context.Context, id model.DeleteTaskInput) (*model.Task, error)
+	DeleteTask(ctx context.Context, input model.DeleteTaskInput) (*model.Task, error)
 }
 type QueryResolver interface {
 	Tasks(ctx context.Context, status *model.Status) ([]*model.Task, error)
@@ -116,7 +116,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteTask(childComplexity, args["id"].(model.DeleteTaskInput)), true
+		return e.complexity.Mutation.DeleteTask(childComplexity, args["input"].(model.DeleteTaskInput)), true
 	case "Mutation.updateTask":
 		if e.complexity.Mutation.UpdateTask == nil {
 			break
@@ -319,11 +319,11 @@ func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNDeleteTaskInput2taskmanagerᚋgraphᚋmodelᚐDeleteTaskInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteTaskInput2taskmanagerᚋgraphᚋmodelᚐDeleteTaskInput)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -584,7 +584,7 @@ func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field grap
 		ec.fieldContext_Mutation_deleteTask,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteTask(ctx, fc.Args["id"].(model.DeleteTaskInput))
+			return ec.resolvers.Mutation().DeleteTask(ctx, fc.Args["input"].(model.DeleteTaskInput))
 		},
 		nil,
 		ec.marshalNTask2ᚖtaskmanagerᚋgraphᚋmodelᚐTask,
@@ -2389,15 +2389,15 @@ func (ec *executionContext) unmarshalInputDeleteTaskInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ID"}
+	fieldsInOrder := [...]string{"id"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -2416,15 +2416,15 @@ func (ec *executionContext) unmarshalInputUpdateTaskInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ID", "title", "description"}
+	fieldsInOrder := [...]string{"id", "title", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -2457,15 +2457,15 @@ func (ec *executionContext) unmarshalInputUpdateTaskStatusInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ID", "status"}
+	fieldsInOrder := [...]string{"id", "status"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err

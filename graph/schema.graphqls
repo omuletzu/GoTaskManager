@@ -21,23 +21,23 @@ input CreateTaskInput {
 }
 
 input UpdateTaskInput {
-  ID: String
+  id: String
   title: String
   description: String
 }
 
 input UpdateTaskStatusInput {
-  ID: String,
+  id: String,
   status: Status
 }
 
 input DeleteTaskInput {
-  ID: String
+  id: String
 }
 
 type Mutation {
   createTask(input: CreateTaskInput!): Task!
   updateTask(input: UpdateTaskInput!): Task!
   updateTaskStatus(input: UpdateTaskStatusInput!): Task!
-  deleteTask(id: DeleteTaskInput!): Task!
+  deleteTask(input: DeleteTaskInput!): Task!
 }

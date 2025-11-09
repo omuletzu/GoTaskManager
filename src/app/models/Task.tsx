@@ -4,3 +4,5 @@ export interface Task {
     description?: string;
     status: "TODO" | "IN_PROGRESS" | "DONE"
 }
+
+export type TaskAndTypename = Task & { __typename: "Task" };

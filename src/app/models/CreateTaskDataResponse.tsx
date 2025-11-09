@@ -1,11 +1,8 @@
 import { CreateTaskInput } from "./CreateTaskInput";
-import { Task } from "./Task";
+import { Task, TaskAndTypename } from "./Task";
 
 export interface CreateTaskDataResponse {
-    __typename: "mutation",
-  createTask: Task & {
-    __typename: "task";
-  };
+  createTask: TaskAndTypename
 }
 
 export interface CreateTaskDataVars {

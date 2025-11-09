@@ -23,8 +23,8 @@ export const CREATE_TASK = gql`
 `
 
 export const UPDATE_TASK = gql`
-    mutation UpdateTask($id: ID!, $input: UpdateTaskInput!) {
-        updateTask(id: $id, input: $input) {
+    mutation UpdateTask($input: UpdateTaskInput!) {
+        updateTask(input: $input) {
             id
             title
             description
@@ -34,8 +34,8 @@ export const UPDATE_TASK = gql`
 `
 
 export const UPDATE_TASK_STATUS = gql`
-    mutation UpdateTaskStatus($id: ID!, $input: UpdateTaskStatusInput!) {
-        updateTaskStatus(id: $id, input: $input) {
+    mutation UpdateTaskStatus($input: UpdateTaskStatusInput!) {
+        updateTaskStatus(input: $input) {
             id
             title
             description
@@ -45,8 +45,8 @@ export const UPDATE_TASK_STATUS = gql`
 `
 
 export const DELETE_TASK = gql`
-    query DeleteTask($id: ID!) {
-        deleteTask(id: $id) {
+    mutation DeleteTask($input: DeleteTaskInput!) {
+        deleteTask(input: $input) {
             id
             title
             description

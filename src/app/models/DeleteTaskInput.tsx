@@ -1,3 +1,3 @@
 export interface DeleteTaskInput {
-    ID: string
+    id: string
 }

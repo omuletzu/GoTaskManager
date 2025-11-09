@@ -1,6 +1,6 @@
 import { Status } from "./Status";
 
 export interface UpdateTaskStatusInput {
-    ID: string,
+    id: string,
     status: Status
 }
